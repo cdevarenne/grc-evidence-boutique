@@ -1,0 +1,23 @@
+{
+  "controls": {
+    "eu-ai-act:art-10": "not-applicable",
+    "eu-ai-act:art-12": "not-applicable",
+    "eu-ai-act:art-13": "not-applicable",
+    "eu-ai-act:art-14": "not-applicable",
+    "eu-ai-act:art-15": "not-applicable",
+    "eu-ai-act:art-50": "not-assessed",
+    "eu-ai-act:art-9": "not-applicable",
+    "iso42001:a.4": "no-violations-detected",
+    "iso42001:a.5": "not-assessed",
+    "iso42001:a.6": "not-satisfied",
+    "iso42001:a.7": "no-violations-detected",
+    "iso42001:a.8": "not-assessed",
+    "iso42001:a.9": "not-assessed",
+    "soc2:a1.1": "not-satisfied",
+    "soc2:cc6.1": "not-satisfied",
+    "soc2:cc6.6": "not-satisfied",
+    "soc2:cc7.1": "not-satisfied",
+    "soc2:cc7.2": "not-satisfied",
+    "soc2:cc8.1": "not-satisfied"
+  }
+}
