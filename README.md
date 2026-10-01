@@ -15,3 +15,9 @@ make scan        # out/report.md, OSCAL, run.json
 ```
 
 The engine version is pinned in the [Makefile](Makefile).
+
+## Issues
+
+This repo is an example, so it has no issue tracker of its own. Its issues live
+with the engine, where anyone adopting okf-grc with their own code will look:
+[okf-grc-skill issues labeled `adopter-demo`](https://github.com/cdevarenne/okf-grc-skill/issues?q=label%3Aadopter-demo).
