@@ -1,0 +1,19 @@
+name: nightly
+
+# Every day: rescan main with a fresh Trivy database and gate at high, so a CVE published since the
+# baseline fails this run. GitHub notifies the workflow's owner of the failure; the job summary and the
+# artifact list what is new. No issue is opened (issues live in okf-grc-skill).
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    uses: $/.github/workflows/compliance.yml
+    with:
+      fail-on: high
+      fresh-trivy-db: true
