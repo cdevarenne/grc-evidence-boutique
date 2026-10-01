@@ -1,0 +1,48 @@
+name: compliance
+
+# Every pull request and push to main: scan upstream with the pinned okf-grc engine (Makefile) and fail
+# if compliance got worse than expected/: a control newly not-satisfied, a new finding at high or
+# above, or an expired suppression. No LLM step runs here.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: compliance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+          submodules: true
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7  # v10.2.0
+        with:
+          enable-cache: true
+      # Trivy's vulnerability database, saved once a day and restored from the latest earlier day
+      # otherwise; Trivy refreshes a stale database itself.
+      - id: day
+        run: echo "day=$(date -u +%F)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: .tools/trivy-cache
+          key: trivy-db-${{ hashFiles('Makefile') }}-${{ steps.day.outputs.day }}
+          restore-keys: trivy-db-${{ hashFiles('Makefile') }}-
+      - run: make bootstrap
+      - run: make check
+      - run: make scan RUN_ARGS=--require-clean
+      - run: make gate GATE_ARGS="--summary $GITHUB_STEP_SUMMARY"
+      - if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: compliance
+          path: out/
+          if-no-files-found: ignore
