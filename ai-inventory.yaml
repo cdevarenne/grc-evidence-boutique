@@ -1,0 +1,24 @@
+# AI system inventory read by okf-grc (decided 2026-10-01; a person reviews and owns it).
+# risk_tier: the shopping assistant chats with shoppers, so EU AI Act Art. 50 (transparency) applies;
+# suggesting products is not an Annex III high-risk use, so the system is limited-risk.
+risk_tier: limited
+components:
+  - {path: upstream/src/frontend, kind: web}
+  - {path: upstream/src/cartservice, kind: api}
+  - {path: upstream/src/productcatalogservice, kind: api}
+  - {path: upstream/src/currencyservice, kind: api}
+  - {path: upstream/src/paymentservice, kind: api}
+  - {path: upstream/src/shippingservice, kind: api}
+  - {path: upstream/src/emailservice, kind: api}
+  - {path: upstream/src/checkoutservice, kind: api}
+  - {path: upstream/src/recommendationservice, kind: api}
+  - {path: upstream/src/adservice, kind: api}
+  - {path: upstream/src/loadgenerator, kind: test-traffic}
+  - {path: upstream/src/shoppingassistantservice, kind: assistant}
+systems:
+  - path: upstream/src/shoppingassistantservice
+    name: shopping-assistant
+    owner: human:cdevarenne
+    provider: Google (Gemini, through LangChain)
+    sdk: langchain
+    purpose: Answers shoppers' questions and suggests products from the catalog.
