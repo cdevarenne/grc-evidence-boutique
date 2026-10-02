@@ -1,6 +1,6 @@
 ---
 okf_version: "0.2"
-base_version: "1.6.0"
+base_version: "1.7.0"
 ---
 # Knowledge Bundle
 
