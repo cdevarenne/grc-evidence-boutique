@@ -1,0 +1,20 @@
+# Version updates. A submodule bump moves upstream/ to the tip of microservices-demo's main (Dependabot does not
+# follow release tags); its pull request runs the compliance workflow, and when the gate fails the author reviews
+# what changed and runs `make baseline` in the same pull request.
+version: 2
+updates:
+  - package-ecosystem: gitsubmodule
+    directory: /
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+    cooldown:
+      default-days: 7
