@@ -149,23 +149,32 @@ bundle, the baseline, or a suppression. See the engine's
 
 `make posture` runs the engine's first agent workflow: a model may call only the
 read tools (control status, findings, gaps, suppressions) and drafts a summary
-for the repository's owner. The draft is written only if every number in it
-appears in what the tools returned, every control it names exists with the
-status it gives, and nothing is called satisfied or compliant.
-[`examples/posture.md`](examples/posture.md) is one such draft, unedited
-(okf-grc 1.7.0, Claude Code on a Claude plan: 3 turns, 10 tool calls, not
-billed).
+for the repository's owner. Before the draft is written, every number in it is
+checked against what the tools returned, every control it names must exist with
+the status it gives, and nothing may be called satisfied or compliant.
 
-A person still reviews it. On this one, the review found:
+**A review found a gap in that check.**
+[`examples/posture-1.7.0.md`](examples/posture-1.7.0.md), written by okf-grc
+1.7.0, passed it with "plus 11 additional CVEs at 4 findings each" for
+`soc2:cc7.1`. Eleven CVEs have 4 findings each and four were already listed, so
+it is 7 more; 1.7.0 only required that a number appear somewhere in the tool
+results, and 11 did. The same review struck a next step, "Map 5 coverage gaps to
+controls": those five were left as gaps by decision in step 3.
 
-- **A misattributed number:** "plus 11 additional CVEs at 4 findings each" for
-  `soc2:cc7.1`. Eleven CVEs have 4 findings each, and the draft already lists
-  four of them, so it is 7 more. Validation passed it because 11 is a number the
-  tools reported; it checks that a number was reported, not what it counts.
-- **A step to strike:** "Map 5 coverage gaps to controls." Those five were left
-  as gaps by decision in step 3; the model could not know that.
+**The engine now binds each number to what it counts** (okf-grc 1.8.0 and
+1.8.1): a count next to a control or rule must be the one the tools reported for
+it, and a number on its own must be a total the tools reported. A rejected draft
+goes back to the model once, with the reasons.
 
-See the engine's [agent docs](https://github.com/cdevarenne/okf-grc-skill/blob/v1.7.0/docs/agents.md).
+**[`examples/posture.md`](examples/posture.md) is the same workflow with
+okf-grc 1.8.1**, unedited (Claude Code on a Claude plan: 3 turns, 11 tool calls,
+not billed). Its first draft was rejected for "296": the findings of
+`soc2:cc6.1` and `soc2:cc7.1` added together, a sum no tool reports. The
+corrected draft passed, and every number in it matches the scan. A person still
+reviews the words: this draft again proposes mapping the five coverage gaps, a
+step to strike for the same reason as before.
+
+See the engine's [agent docs](https://github.com/cdevarenne/okf-grc-skill/blob/v1.8.1/docs/agents.md).
 
 ## Issues
 
