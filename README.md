@@ -48,7 +48,7 @@ A person then wrote what only they know:
 `make scan` runs Semgrep, Trivy (configuration and dependencies), Checkov, and
 Conftest, maps each finding to a control only through a reviewed `rule_ids`
 declaration, and writes `out/report.md`, OSCAL, and a run manifest. On this
-repo, with okf-grc 1.4.0:
+repo, with okf-grc 1.5.0:
 
 - **429 findings** (Trivy 244, Checkov 172, Conftest 12, Semgrep 1), of which 5
   rules are coverage gaps: findings no control claims.
@@ -116,10 +116,21 @@ Actions are pinned to commit SHAs, the token is read-only, and no LLM runs in CI
 
 ### 6. Through an agent
 
-The engine's agent skill (`grc-continuous-compliance`) runs this pipeline from a
-coding agent and drafts suppressions for a person to review. It is not yet
-packaged for adopter repos; see
-[okf-grc-skill#106](https://github.com/cdevarenne/okf-grc-skill/issues/106).
+`grc install-skill` added the engine's agent skill to
+[`.claude/skills/grc-continuous-compliance/`](.claude/skills/grc-continuous-compliance/SKILL.md),
+where Claude Code finds it (other agents that support skills can use the same
+file). In a session in this repo, ask for what you want, for example:
+
+- "Review the compliance posture of Online Boutique."
+- "Which findings have no control? Propose mappings for them."
+- "This finding is a false positive: draft a suppression."
+
+The skill reads the layout from `grc.yaml`, runs the pipeline through this
+repo's `make` targets (so the pinned engine), and summarizes the report. It
+never changes a status, a count, or a finding, never applies its own mapping
+proposals, and drafts suppressions for a person to review, as in step 4.
+`grc sync-base` keeps the copy current with the pinned engine, and `make check`
+reports a local edit.
 
 ## Issues
 
