@@ -7,6 +7,9 @@ under `upstream/`. This repo adds only the compliance layer: the scan layout,
 the knowledge bundle, the AI inventory, and CI. It is a worked example of
 adopting the engine, not a compliance attestation of Online Boutique.
 
+The short version, with its figures checked against this repository:
+[the one-page case study](docs/case-study.md).
+
 ```
 git clone --recurse-submodules https://github.com/cdevarenne/okf-grc-demo-boutique.git
 cd okf-grc-demo-boutique
