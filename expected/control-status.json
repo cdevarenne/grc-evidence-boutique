@@ -85,7 +85,6 @@
     "checkov:CKV_K8S_21 upstream/kubernetes-manifests/currencyservice.yaml",
     "checkov:CKV_K8S_21 upstream/kubernetes-manifests/emailservice.yaml",
     "checkov:CKV_K8S_21 upstream/kubernetes-manifests/frontend.yaml",
-    "checkov:CKV_K8S_21 upstream/kubernetes-manifests/loadgenerator.yaml",
     "checkov:CKV_K8S_21 upstream/kubernetes-manifests/paymentservice.yaml",
     "checkov:CKV_K8S_21 upstream/kubernetes-manifests/productcatalogservice.yaml",
     "checkov:CKV_K8S_21 upstream/kubernetes-manifests/recommendationservice.yaml",
