@@ -2,7 +2,7 @@
   "mcpServers": {
     "okf-grc": {
       "command": "uvx",
-      "args": ["--from", "okf-grc[mcp] @ git+https://github.com/cdevarenne/okf-grc-skill@v1.7.0", "grc", "mcp"]
+      "args": ["--from", "okf-grc[mcp] @ git+https://github.com/cdevarenne/okf-grc-skill@v1.8.1", "grc", "mcp"]
     }
   }
 }
