@@ -1,5 +1,5 @@
 # The okf-grc engine, pinned to a release; local runs and CI use exactly this version.
-OKF_GRC_VERSION := v1.5.0
+OKF_GRC_VERSION := v1.6.0
 GRC := uvx --from git+https://github.com/cdevarenne/okf-grc-skill@$(OKF_GRC_VERSION) grc
 # The same engine with its optional LLM client, for triage (LLM_MODE=anthropic or claude-cli).
 # The workflow linter, pinned to the version the engine's own audit uses.

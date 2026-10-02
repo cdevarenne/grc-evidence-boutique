@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "okf-grc": {
+      "command": "uvx",
+      "args": ["--from", "okf-grc[mcp] @ git+https://github.com/cdevarenne/okf-grc-skill@v1.6.0", "grc", "mcp"]
+    }
+  }
+}

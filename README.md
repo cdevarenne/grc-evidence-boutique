@@ -48,7 +48,7 @@ A person then wrote what only they know:
 `make scan` runs Semgrep, Trivy (configuration and dependencies), Checkov, and
 Conftest, maps each finding to a control only through a reviewed `rule_ids`
 declaration, and writes `out/report.md`, OSCAL, and a run manifest. On this
-repo, with okf-grc 1.5.0:
+repo, with okf-grc 1.6.0:
 
 - **422 findings** (Trivy 243, Checkov 166, Conftest 12, Semgrep 1), of which 5
   rules are coverage gaps: findings no control claims.
@@ -95,11 +95,15 @@ removes the suppression.
 ### 5. What CI does
 
 - **Every pull request and push to `main`**
-  ([`compliance.yml`](.github/workflows/compliance.yml)): bootstrap, `make check`,
-  a scan that refuses inputs differing from the commit (`--require-clean`), and
-  `make gate` against [`expected/control-status.json`](expected/control-status.json).
-  The gate fails when a control turns `not-satisfied`, when a finding not in the
-  baseline is `critical`, or when a suppression has expired. The job summary
+  ([`compliance.yml`](.github/workflows/compliance.yml)): zizmor over this repo's
+  workflows (`make audit`), bootstrap, `make check`, a scan that refuses inputs
+  differing from the commit (`--require-clean`), and `make gate` against
+  [`expected/control-status.json`](expected/control-status.json), which records
+  each control's status and how many findings each rule has in each file. The
+  gate fails when a control turns `not-satisfied`, when a code or configuration
+  finding is new (at any severity, coverage gaps included: only a change can
+  produce one), when a new dependency advisory is `critical`, or when a
+  suppression has expired. The job summary
   shows each control's status against the baseline; `out/` is uploaded as the
   `compliance` artifact.
 - **Every night** ([`nightly.yml`](.github/workflows/nightly.yml)): the same scan
@@ -131,6 +135,15 @@ never changes a status, a count, or a finding, never applies its own mapping
 proposals, and drafts suppressions for a person to review, as in step 4.
 `grc sync-base` keeps the copy current with the pinned engine, and `make check`
 reports a local edit.
+
+Any MCP-capable agent can also use the engine's MCP server, which
+[`.mcp.json`](.mcp.json) starts through the pinned release (Claude Code asks
+once before starting it). Its tools run the scan and read the results:
+`control_status`, `findings`, `gaps`, `suppressions`, and `gate`, which reports
+what CI's gate would say against the committed baseline. Scanner text reaches
+the agent only under a field marked `untrusted`, and no tool can change the
+bundle, the baseline, or a suppression. See the engine's
+[MCP docs](https://github.com/cdevarenne/okf-grc-skill/blob/v1.6.0/docs/mcp.md).
 
 ## Issues
 
