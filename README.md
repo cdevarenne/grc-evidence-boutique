@@ -145,6 +145,28 @@ the agent only under a field marked `untrusted`, and no tool can change the
 bundle, the baseline, or a suppression. See the engine's
 [MCP docs](https://github.com/cdevarenne/okf-grc-skill/blob/v1.6.0/docs/mcp.md).
 
+### 7. An agent's draft, and its review
+
+`make posture` runs the engine's first agent workflow: a model may call only the
+read tools (control status, findings, gaps, suppressions) and drafts a summary
+for the repository's owner. The draft is written only if every number in it
+appears in what the tools returned, every control it names exists with the
+status it gives, and nothing is called satisfied or compliant.
+[`examples/posture.md`](examples/posture.md) is one such draft, unedited
+(okf-grc 1.7.0, Claude Code on a Claude plan: 3 turns, 10 tool calls, not
+billed).
+
+A person still reviews it. On this one, the review found:
+
+- **A misattributed number:** "plus 11 additional CVEs at 4 findings each" for
+  `soc2:cc7.1`. Eleven CVEs have 4 findings each, and the draft already lists
+  four of them, so it is 7 more. Validation passed it because 11 is a number the
+  tools reported; it checks that a number was reported, not what it counts.
+- **A step to strike:** "Map 5 coverage gaps to controls." Those five were left
+  as gaps by decision in step 3; the model could not know that.
+
+See the engine's [agent docs](https://github.com/cdevarenne/okf-grc-skill/blob/v1.7.0/docs/agents.md).
+
 ## Issues
 
 This repo is an example, so it has no issue tracker of its own. Its issues live
