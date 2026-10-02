@@ -47,6 +47,7 @@ jobs:
           path: .tools/trivy-cache
           key: trivy-db-${{ hashFiles('Makefile') }}-${{ steps.day.outputs.day }}
           restore-keys: trivy-db-${{ hashFiles('Makefile') }}-
+      - run: make audit
       - run: make bootstrap
       - run: make check
       - run: make scan RUN_ARGS=--require-clean

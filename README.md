@@ -34,8 +34,8 @@ A person then wrote what only they know:
 - **[`grc.yaml`](grc.yaml)**: the target is `upstream`; Conftest reads the
   Kubernetes manifests, the Terraform, the shopping assistant's manifest, and the
   inventory; `skip_paths` keeps Trivy and Checkov out of the Helm chart's
-  unrendered templates, duplicate kustomize and release manifests, and upstream's
-  own CI.
+  unrendered templates, duplicate kustomize and release manifests, a kustomize
+  patch that only deletes the load generator, and upstream's own CI.
 - **[`knowledge/stack/`](knowledge/stack/)**: one concept per service (12) plus
   GKE and Memorystore, each saying what it is and which controls it implements,
   each with a person's `verified` entry.
@@ -50,7 +50,7 @@ Conftest, maps each finding to a control only through a reviewed `rule_ids`
 declaration, and writes `out/report.md`, OSCAL, and a run manifest. On this
 repo, with okf-grc 1.5.0:
 
-- **429 findings** (Trivy 244, Checkov 172, Conftest 12, Semgrep 1), of which 5
+- **422 findings** (Trivy 243, Checkov 166, Conftest 12, Semgrep 1), of which 5
   rules are coverage gaps: findings no control claims.
 - **7 controls `not-satisfied`**: SOC 2 A1.1, CC6.1, CC6.6, CC7.1, CC7.2, CC8.1,
   and ISO/IEC 42001 A.6 (the shopping assistant's LangChain call sets no

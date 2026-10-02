@@ -5,7 +5,7 @@ knowledge: knowledge
 inventory: ../ai-inventory.yaml
 conftest:
   inputs: ['kubernetes-manifests/*.yaml', 'terraform/*.tf', 'kustomize/components/shopping-assistant/shoppingassistantservice.yaml', '../ai-inventory.yaml']
-skip_paths: [helm-chart, kustomize/base, release, .github]  # templated or duplicate manifests, and upstream's own CI
+skip_paths: [helm-chart, kustomize/base, kustomize/components/without-loadgenerator, release, .github]  # templated, duplicate, or delete-only manifests, and upstream's own CI
 checkov:
   frameworks: [terraform, kubernetes, dockerfile]
   skip_paths: []
