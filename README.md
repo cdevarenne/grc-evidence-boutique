@@ -183,4 +183,4 @@ See the engine's [agent docs](https://github.com/cdevarenne/grc-evidence/blob/v1
 
 This repo is an example, so it has no issue tracker of its own. Its issues live
 with the engine, where anyone adopting okf-grc with their own code will look:
-[okf-grc-skill issues labeled `adopter-demo`](https://github.com/cdevarenne/grc-evidence/issues?q=label%3Aadopter-demo).
+[grc-evidence issues labeled `adopter-demo`](https://github.com/cdevarenne/grc-evidence/issues?q=label%3Aadopter-demo).
