@@ -1,6 +1,6 @@
-# okf-grc-demo-boutique
+# grc-evidence-boutique
 
-[okf-grc](https://github.com/cdevarenne/okf-grc-skill) applied to an app it was
+[okf-grc](https://github.com/cdevarenne/grc-evidence) applied to an app it was
 not built around: Google's [microservices-demo](https://github.com/GoogleCloudPlatform/microservices-demo)
 ("Online Boutique"), included unmodified as a git submodule at release v0.10.7
 under `upstream/`. This repo adds only the compliance layer: the scan layout,
@@ -11,8 +11,8 @@ The short version, with its figures checked against this repository:
 [the one-page case study](docs/case-study.md).
 
 ```
-git clone --recurse-submodules https://github.com/cdevarenne/okf-grc-demo-boutique.git
-cd okf-grc-demo-boutique
+git clone --recurse-submodules https://github.com/cdevarenne/grc-evidence-boutique.git
+cd grc-evidence-boutique
 make bootstrap   # the pinned scanners, into .tools/
 make scan        # out/: report.md, findings, mapping, OSCAL, run.json
 make check       # base copies unchanged; every concept reviewed by a person
@@ -146,7 +146,7 @@ once before starting it). Its tools run the scan and read the results:
 what CI's gate would say against the committed baseline. Scanner text reaches
 the agent only under a field marked `untrusted`, and no tool can change the
 bundle, the baseline, or a suppression. See the engine's
-[MCP docs](https://github.com/cdevarenne/okf-grc-skill/blob/v1.6.0/docs/mcp.md).
+[MCP docs](https://github.com/cdevarenne/grc-evidence/blob/v1.6.0/docs/mcp.md).
 
 ### 7. An agent's draft, and its review
 
@@ -177,10 +177,10 @@ corrected draft passed, and every number in it matches the scan. A person still
 reviews the words: this draft again proposes mapping the five coverage gaps, a
 step to strike for the same reason as before.
 
-See the engine's [agent docs](https://github.com/cdevarenne/okf-grc-skill/blob/v1.8.1/docs/agents.md).
+See the engine's [agent docs](https://github.com/cdevarenne/grc-evidence/blob/v1.8.1/docs/agents.md).
 
 ## Issues
 
 This repo is an example, so it has no issue tracker of its own. Its issues live
 with the engine, where anyone adopting okf-grc with their own code will look:
-[okf-grc-skill issues labeled `adopter-demo`](https://github.com/cdevarenne/okf-grc-skill/issues?q=label%3Aadopter-demo).
+[okf-grc-skill issues labeled `adopter-demo`](https://github.com/cdevarenne/grc-evidence/issues?q=label%3Aadopter-demo).

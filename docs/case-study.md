@@ -1,6 +1,6 @@
 # Case study: compliance evidence for an app the engine was not built around
 
-[okf-grc](https://github.com/cdevarenne/okf-grc-skill) scans a repository with
+[okf-grc](https://github.com/cdevarenne/grc-evidence) scans a repository with
 four pinned scanners and maps each finding to a SOC 2, ISO/IEC 42001, or EU AI
 Act control, only through mappings a person has reviewed. This repository
 applies it to Google's
