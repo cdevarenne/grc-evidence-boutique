@@ -1,8 +1,8 @@
 {
   "mcpServers": {
-    "okf-grc": {
+    "grc-evidence": {
       "command": "uvx",
-      "args": ["--from", "okf-grc[mcp] @ git+https://github.com/cdevarenne/grc-evidence@v1.8.1", "grc", "mcp"]
+      "args": ["--from", "grc-evidence[mcp] @ git+https://github.com/cdevarenne/grc-evidence@v2.0.0", "grc", "mcp"]
     }
   }
 }

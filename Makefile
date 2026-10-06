@@ -1,13 +1,13 @@
-# The okf-grc engine, pinned to a release; local runs and CI use exactly this version.
-OKF_GRC_VERSION := v1.8.1
-GRC := uvx --from git+https://github.com/cdevarenne/grc-evidence@$(OKF_GRC_VERSION) grc
+# The grc-evidence engine, pinned to a release; local runs and CI use exactly this version.
+GRC_VERSION := v2.0.0
+GRC := uvx --from git+https://github.com/cdevarenne/grc-evidence@$(GRC_VERSION) grc
 # The same engine with its optional LLM client, for triage (LLM_MODE=anthropic or claude-cli).
 # The workflow linter, pinned to the version the engine's own audit uses.
 ZIZMOR := uvx zizmor@1.30.1
 # CI passes RUN_ARGS=--require-clean and GATE_ARGS=--summary <file>.
-GRC_LLM := uvx --from "okf-grc[llm] @ git+https://github.com/cdevarenne/grc-evidence@$(OKF_GRC_VERSION)" grc
+GRC_LLM := uvx --from "grc-evidence[llm] @ git+https://github.com/cdevarenne/grc-evidence@$(GRC_VERSION)" grc
 # With the MCP server too, for agent workflows (LLM_MODE=claude-cli on a Claude plan, or anthropic with a key).
-GRC_AGENT := uvx --from "okf-grc[llm,mcp] @ git+https://github.com/cdevarenne/grc-evidence@$(OKF_GRC_VERSION)" grc
+GRC_AGENT := uvx --from "grc-evidence[llm,mcp] @ git+https://github.com/cdevarenne/grc-evidence@$(GRC_VERSION)" grc
 
 .PHONY: bootstrap scan check gate baseline triage audit posture
 

@@ -29,7 +29,7 @@ description: >
 
 ## Workflow
 
-The steps call the `grc` CLI of the `okf-grc` engine. Run it the way the
+The steps call the `grc` CLI of the `grc-evidence` engine. Run it the way the
 repository does: through its `make` targets when the Makefile has them (they pin
 the engine version), as `uv run grc …` in the engine's own repository, or as
 `grc` on the PATH (`grc --version` shows which release).
