@@ -1,13 +1,14 @@
 name: nightly
 
-# Every day, the Type 2 evidence run:
-# - Scan main with a fresh Trivy database and run the GitHub collectors: the posture of the owner's repos and
-#   upstream's change population for the audit window (grc.yaml). Tokens come from secrets, never the repo.
-# - Append the collector and run entries to the evidence ledger (the `ledger` branch, checked out into
-#   evidence/), verify its hash chain, write the window report, and push only evidence/ledger.jsonl.
-# - Gate at high last, so a failing day is still recorded in the ledger before the job fails. GitHub notifies
-#   the workflow's owner of a failure; the job summary and the artifact list what is new. Issues live in
-#   grc-evidence.
+# Every day, the Type 2 evidence run, in two jobs so that write access never meets third-party code:
+# - evidence (read only): scan main with a fresh Trivy database and run the GitHub collectors (the posture of
+#   the owner's repos, upstream's change population for the audit window in grc.yaml). Append the entries to
+#   the evidence ledger (the `ledger` branch, checked out into evidence/), verify it, write the window report,
+#   and hand the ledger on as an artifact. Then gate at high; a failing day is still handed on.
+# - publish (contents: write): no scanner and no engine code. Check that the new ledger is the old one with
+#   lines appended only, then push it to the `ledger` branch.
+# GitHub notifies the workflow's owner of a failure; the job summary and the artifacts list what is new.
+# Issues live in grc-evidence.
 on:
   schedule:
     - cron: "17 6 * * *"
@@ -24,8 +25,8 @@ jobs:
   evidence:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    permissions:
-      contents: write  # pushes evidence/ledger.jsonl to the ledger branch, nothing else
+    outputs:
+      ledger: ${{ steps.handed-on.outputs.ledger }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -48,8 +49,48 @@ jobs:
           GRC_PEOPLE_SALT: ${{ secrets.GRC_PEOPLE_SALT }}
       - run: make ledger
       - run: make window
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: ledger
+          path: evidence/ledger.jsonl
+          if-no-files-found: error
+      - id: handed-on
+        run: echo "ledger=yes" >> "$GITHUB_OUTPUT"
+      - run: make gate GATE_ARGS="--fail-on high --summary $GITHUB_STEP_SUMMARY"
+      - if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: evidence
+          path: out/
+          if-no-files-found: ignore
+
+  publish:
+    needs: evidence
+    # Also after a failed gate: the day's entries are evidence either way. Not when no ledger was handed on.
+    if: ${{ !cancelled() && needs.evidence.outputs.ledger == 'yes' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write  # pushes ledger.jsonl to the ledger branch, nothing else
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: ledger
+          persist-credentials: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        with:
+          name: ledger
+          path: ${{ runner.temp }}/new
+      - name: Check the new ledger only appends to the old one
+        env:
+          NEW: ${{ runner.temp }}/new/ledger.jsonl
+        run: |
+          old_size=$(wc -c < ledger.jsonl)
+          new_size=$(wc -c < "$NEW")
+          [ "$new_size" -gt "$old_size" ] || { echo "the new ledger is not longer than the old one"; exit 1; }
+          cmp -n "$old_size" ledger.jsonl "$NEW" || { echo "the new ledger changes existing lines"; exit 1; }
+          cp "$NEW" ledger.jsonl
       - name: Push the ledger
-        working-directory: evidence
         env:
           TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
@@ -58,10 +99,3 @@ jobs:
           git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
             commit -m "Evidence ledger: nightly run $(date -u +%F)"
           git push "https://x-access-token:${TOKEN}@github.com/${REPO}.git" HEAD:ledger
-      - run: make gate GATE_ARGS="--fail-on high --summary $GITHUB_STEP_SUMMARY"
-      - if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
-        with:
-          name: evidence
-          path: out/
-          if-no-files-found: ignore
