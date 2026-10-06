@@ -1,6 +1,6 @@
 # grc-evidence-boutique
 
-[okf-grc](https://github.com/cdevarenne/grc-evidence) applied to an app it was
+[grc-evidence](https://github.com/cdevarenne/grc-evidence) applied to an app it was
 not built around: Google's [microservices-demo](https://github.com/GoogleCloudPlatform/microservices-demo)
 ("Online Boutique"), included unmodified as a git submodule at release v0.10.7
 under `upstream/`. This repo adds only the compliance layer: the scan layout,
@@ -112,14 +112,18 @@ removes the suppression.
 - **Every night** ([`nightly.yml`](.github/workflows/nightly.yml)): the same scan
   of `main` with a fresh Trivy database, gating at `high`, so a newly published
   CVE fails the nightly run (GitHub notifies the owner) rather than an unrelated
-  pull request.
+  pull request. The nightly run also collects the Type 2 evidence (section 8).
+  Pull requests and pushes skip the collectors (`make scan` passes
+  `--no-collect`), so they need no token.
 - **Dependabot** ([`dependabot.yml`](.github/dependabot.yml)) proposes the
   submodule's next upstream commit monthly and action updates weekly, each after
   a 7-day cooldown. When a bump changes compliance, the author reviews it and
   runs `make baseline` in the same pull request, so the baseline moves only by
   review.
 
-Actions are pinned to commit SHAs, the token is read-only, and no LLM runs in CI.
+Actions are pinned to commit SHAs and no LLM runs in CI. Every job's token is
+read-only except the nightly `publish` job's, which pushes only the evidence
+ledger and runs no scanner.
 
 ### 6. Through an agent
 
@@ -179,8 +183,40 @@ step to strike for the same reason as before.
 
 See the engine's [agent docs](https://github.com/cdevarenne/grc-evidence/blob/v1.8.1/docs/agents.md).
 
+### 8. Type 2 evidence over a window
+
+A SOC 2 Type 2 audit asks whether controls operated over a period, not on one
+day. [`grc.yaml`](grc.yaml) sets the audit window to 2026-10-01 through
+2026-12-31 and names three repos, read through the GitHub API with no clone:
+
+- **Upstream's change population** (`collect: [changes]`): every change merged
+  into `microservices-demo`'s default branch in the window, with its author,
+  merger and independent approvers, beside the count of all merged changes. Its
+  contributors are named `p-<HMAC>` (`people: pseudonymous`). No upstream change
+  has merged since 2026-10-01 yet, so the population is 0 of 0.
+- **This repo's and the engine's settings** (`collect: [scm]`): both are
+  maintained by one person, so neither requires a review or a status check, and
+  the engine runs its scanners in its `test` job, not a `scan` job. These are
+  findings on CC8.1, recorded in the baseline; Spec I will turn them into signed
+  risk acceptances.
+
+The nightly run does it in two jobs. `evidence`, read-only, scans, collects, and
+appends the day's entries to the evidence ledger: the
+[`ledger`](https://github.com/cdevarenne/grc-evidence-boutique/tree/ledger)
+branch, checked out into `evidence/`. Each line is hash-chained to the one
+before; `make ledger` verifies the chain and the timestamps, and `make window`
+writes each control's history over the window, with its gaps, to
+`out/window.md` (in the `evidence` artifact). `publish` then checks that the new
+ledger only appends to the old one and pushes it. It runs no scanner.
+
+The collectors use a fine-grained, read-only token (the `GRC_GITHUB_TOKEN`
+secret), because the Actions token cannot read classic branch protection. A
+`make baseline` collects too, so it needs that token (or `gh auth token`) and
+`GRC_PEOPLE_SALT` in the environment. For what is not covered, see the engine's
+[limits](https://github.com/cdevarenne/grc-evidence/blob/v2.0.1/docs/limits.md).
+
 ## Issues
 
 This repo is an example, so it has no issue tracker of its own. Its issues live
-with the engine, where anyone adopting okf-grc with their own code will look:
+with the engine, where anyone adopting grc-evidence with their own code will look:
 [grc-evidence issues labeled `adopter-demo`](https://github.com/cdevarenne/grc-evidence/issues?q=label%3Aadopter-demo).
