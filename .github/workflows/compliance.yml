@@ -1,27 +1,20 @@
 name: compliance
 
-# Every pull request and push to main: scan upstream with the pinned okf-grc engine (Makefile) and fail
-# if compliance got worse than expected/: a control newly not-satisfied, a new finding at critical (the
-# nightly run gates at high, so a CVE published since the baseline does not fail an unrelated pull
-# request), or an expired suppression. No LLM step runs here.
+# Every pull request and push to main: scan upstream with the pinned grc-evidence engine (Makefile) and
+# fail if compliance got worse than expected/: a control newly not-satisfied, a new finding at critical
+# (the nightly run gates at high, so a CVE published since the baseline does not fail an unrelated pull
+# request), or an expired suppression. The GitHub collectors do not run here (`make scan` passes
+# --no-collect), so this job needs no token and writes no evidence; the nightly job collects. No LLM step.
 on:
   push:
     branches: [main]
   pull_request:
-  workflow_call:  # nightly.yml
-    inputs:
-      fail-on:
-        type: string
-        default: critical
-      fresh-trivy-db:
-        type: boolean
-        default: false
 
 permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}  # the caller's name: nightly never cancels a push run
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -39,10 +32,8 @@ jobs:
       # Trivy's vulnerability database, saved once a day and restored from the latest earlier day
       # otherwise; Trivy refreshes a stale database itself. The nightly run downloads it fresh.
       - id: day
-        if: ${{ !inputs.fresh-trivy-db }}
         run: echo "day=$(date -u +%F)" >> "$GITHUB_OUTPUT"
-      - if: ${{ !inputs.fresh-trivy-db }}
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: .tools/trivy-cache
           key: trivy-db-${{ hashFiles('Makefile') }}-${{ steps.day.outputs.day }}
@@ -51,9 +42,7 @@ jobs:
       - run: make bootstrap
       - run: make check
       - run: make scan RUN_ARGS=--require-clean
-      - run: make gate GATE_ARGS="--fail-on $FAIL_ON --summary $GITHUB_STEP_SUMMARY"
-        env:
-          FAIL_ON: ${{ inputs.fail-on || 'critical' }}
+      - run: make gate GATE_ARGS="--fail-on critical --summary $GITHUB_STEP_SUMMARY"
       - if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:

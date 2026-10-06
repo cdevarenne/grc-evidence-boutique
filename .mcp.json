@@ -2,7 +2,7 @@
   "mcpServers": {
     "grc-evidence": {
       "command": "uvx",
-      "args": ["--from", "grc-evidence[mcp] @ git+https://github.com/cdevarenne/grc-evidence@v2.0.0", "grc", "mcp"]
+      "args": ["--from", "grc-evidence[mcp] @ git+https://github.com/cdevarenne/grc-evidence@v2.0.1", "grc", "mcp"]
     }
   }
 }

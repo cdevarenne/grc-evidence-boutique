@@ -1,8 +1,13 @@
 name: nightly
 
-# Every day: rescan main with a fresh Trivy database and gate at high, so a CVE published since the
-# baseline fails this run. GitHub notifies the workflow's owner of the failure; the job summary and the
-# artifact list what is new. No issue is opened (issues live in grc-evidence).
+# Every day, the Type 2 evidence run:
+# - Scan main with a fresh Trivy database and run the GitHub collectors: the posture of the owner's repos and
+#   upstream's change population for the audit window (grc.yaml). Tokens come from secrets, never the repo.
+# - Append the collector and run entries to the evidence ledger (the `ledger` branch, checked out into
+#   evidence/), verify its hash chain, write the window report, and push only evidence/ledger.jsonl.
+# - Gate at high last, so a failing day is still recorded in the ledger before the job fails. GitHub notifies
+#   the workflow's owner of a failure; the job summary and the artifact list what is new. Issues live in
+#   grc-evidence.
 on:
   schedule:
     - cron: "17 6 * * *"
@@ -11,9 +16,52 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: evidence-ledger  # one ledger writer at a time
+  cancel-in-progress: false
+
 jobs:
-  scan:
-    uses: $/.github/workflows/compliance.yml
-    with:
-      fail-on: high
-      fresh-trivy-db: true
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write  # pushes evidence/ledger.jsonl to the ledger branch, nothing else
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+          submodules: true
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: ledger
+          path: evidence
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7  # v10.2.0
+        with:
+          enable-cache: true
+      - run: make audit
+      - run: make bootstrap
+      - run: make check
+      - run: make scan COLLECT= RUN_ARGS=--require-clean
+        env:
+          GH_TOKEN: ${{ secrets.GRC_GITHUB_TOKEN }}
+          GRC_PEOPLE_SALT: ${{ secrets.GRC_PEOPLE_SALT }}
+      - run: make ledger
+      - run: make window
+      - name: Push the ledger
+        working-directory: evidence
+        env:
+          TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          git add ledger.jsonl
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -m "Evidence ledger: nightly run $(date -u +%F)"
+          git push "https://x-access-token:${TOKEN}@github.com/${REPO}.git" HEAD:ledger
+      - run: make gate GATE_ARGS="--fail-on high --summary $GITHUB_STEP_SUMMARY"
+      - if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: evidence
+          path: out/
+          if-no-files-found: ignore

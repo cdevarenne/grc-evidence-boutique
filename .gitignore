@@ -1,3 +1,5 @@
 .tools/
 out/
 .DS_Store
+# The ledger branch, checked out by the nightly job.
+evidence/

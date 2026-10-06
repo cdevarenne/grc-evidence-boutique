@@ -14,3 +14,14 @@ semgrep:
 rego: [policies/rego]
 scanner_timeout: 900  # seconds per scanner
 allow_external_symlinks: false  # accept a Conftest input that is a symlink out of the repo
+
+# Type 2 evidence (grc-evidence 2.0): the nightly job collects, appends to the evidence ledger (the `ledger`
+# branch, checked out into evidence/) and writes the window report. Pull requests skip the collectors.
+window: {start: 2026-10-01, end: 2026-12-31}
+people: pseudonymous  # upstream's contributors are named p-<HMAC>; the salt is the GRC_PEOPLE_SALT secret
+github:
+  scanner_jobs: [scan]  # the job that runs the scanners; grc-evidence runs its own in its `test` job
+  repos:
+    - {name: GoogleCloudPlatform/microservices-demo, tier: in-scope, collect: [changes]}
+    - {name: cdevarenne/grc-evidence, tier: in-scope, collect: [scm]}
+    - {name: cdevarenne/grc-evidence-boutique, tier: in-scope, collect: [scm]}
