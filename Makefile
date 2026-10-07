@@ -1,5 +1,5 @@
 # The grc-evidence engine, pinned to a release; local runs and CI use exactly this version.
-GRC_VERSION := v2.0.1
+GRC_VERSION := v2.1.0
 GRC := uvx --from git+https://github.com/cdevarenne/grc-evidence@$(GRC_VERSION) grc
 # The same engine with its optional LLM client, for triage (LLM_MODE=anthropic or claude-cli).
 # The workflow linter, pinned to the version the engine's own audit uses.
