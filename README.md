@@ -80,7 +80,10 @@ bundle (okf-grc 1.2.1, the `isolate-workloads` guardrail), next to Trivy's
 equivalent `KSV-0110`, which triage had proposed as `none`. In all, 42 rules
 were mapped; 5 stay gaps by decision (cluster labels, image pull policy
 `Always`, `apt-get` recommends, the GKE release channel). `grc sync-base`
-brought the new base into this repo.
+brought the new base into this repo. Since engine 2.3.0, `make propose` turns
+triage's high-confidence proposals into draft concepts in
+`out/agent/mapping.patch` and lists the other gaps in `out/agent/gaps.md`, an
+issue body; a person still applies, writes and signs each one.
 
 ### 4. Suppress one finding
 

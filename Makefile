@@ -1,5 +1,5 @@
 # The grc-evidence engine, pinned to a release; local runs and CI use exactly this version.
-GRC_VERSION := v2.2.0
+GRC_VERSION := v2.3.1
 GRC := uvx --from git+https://github.com/cdevarenne/grc-evidence@$(GRC_VERSION) grc
 # The same engine with its optional LLM client, for triage (LLM_MODE=anthropic or claude-cli).
 # The workflow linter, pinned to the version the engine's own audit uses.
@@ -13,7 +13,7 @@ GRC_AGENT := uvx --from "grc-evidence[llm,mcp] @ git+https://github.com/cdevaren
 # for `make baseline`, with GH_TOKEN and GRC_PEOPLE_SALT set. Pull requests and local scans skip them.
 COLLECT ?= --no-collect
 
-.PHONY: bootstrap scan check gate baseline triage audit posture ledger window
+.PHONY: bootstrap scan check gate baseline triage propose audit posture ledger window
 
 bootstrap:  # the pinned scanners, into .tools/
 	$(GRC) bootstrap
@@ -33,6 +33,9 @@ baseline:  # rewrite expected/ in the same change as an upstream or engine bump;
 
 triage: scan  # proposals for coverage gaps -> out/proposals.json, for a person to decide; nothing is applied
 	$(GRC_LLM) triage
+
+propose:    # after triage, no model call: draft concepts -> out/agent/mapping.patch, other gaps -> out/agent/gaps.md
+	$(GRC) propose
 
 audit:  # this repo's own workflows and Dependabot config (it has no dependencies of its own to scan)
 	$(ZIZMOR) --no-progress .github
